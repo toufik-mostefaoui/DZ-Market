@@ -17,4 +17,6 @@ urlpatterns = [
 
     path("vendeurs/", VendeurCRUD.as_view()),
     path("vendeurs/<int:pk>/", VendeurDetail.as_view()),
+
+    path("verify-user/", VerifyUserStatus.as_view(), name="verify-user"),
 ]

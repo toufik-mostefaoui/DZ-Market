@@ -48,7 +48,9 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',  # example: Google
     'dj_rest_auth',
     'dj_rest_auth.registration',
+    
 ]
+#'auth_app.apps.MsAuthConfig',
 SITE_ID = 1
 REST_USE_JWT = True  # if you want JWT
 ACCOUNT_EMAIL_VERIFICATION = "optional"
@@ -172,3 +174,8 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "oumaimatest425@gmail.com"
 EMAIL_HOST_PASSWORD = "ftse evff ebua oqlr"
+
+
+EUREKA_SERVER = "http://localhost:8761/eureka/"
+SERVICE_NAME = "ms-authentification"
+SERVICE_PORT = 8000

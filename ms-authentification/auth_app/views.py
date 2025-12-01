@@ -11,14 +11,15 @@ from .emails import send_verification_email
 
 from rest_framework import generics, permissions
 from dj_rest_auth.views import PasswordChangeView
-from rest_framework.response import Response
+
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from rest_framework import status
 from django.core.mail import send_mail
-from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+
 ### REGISTER ###
 class RegisterView(APIView):
     permission_classes = [AllowAny]
@@ -162,3 +163,16 @@ class VendeurDetail(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         return User.objects.filter(role="vendeur")
 
+
+
+class VerifyUserStatus(APIView):
+    permission_classes = [IsAuthenticated]  # Only authenticated users
+
+    def get(self, request):
+        user = request.user
+        return Response({
+            "username": user.username,
+            "email": user.email,
+            "role": user.role,
+            "is_verified": user.is_verified
+        })
