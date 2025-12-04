@@ -1,13 +1,14 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ProductModule } from './product/product.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { LoggerMiddleware } from './middleware/logger.middlware';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({isGlobal: true,}),
+    ConfigModule.forRoot({ isGlobal: true }),
     ProductModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -18,9 +19,13 @@ import { ConfigModule } from '@nestjs/config';
       database: process.env.DB_DATABASE,
       autoLoadEntities: true,
       synchronize: true,
-    })
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}

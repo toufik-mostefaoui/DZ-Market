@@ -215,13 +215,17 @@ export class ProductService {
       product.discount_start_at = null;
       product.discount_end_at = null;
       return await this.productRepository.save(product);
-    } else {
-      if (!startDate || !endDate)
+    }
+    if (!startDate || !endDate)
         throw new BadRequestException('Start and end date are required');
 
-      if (new Date(startDate) >= new Date(endDate))
+    if (new Date(startDate) >= new Date(endDate))
         throw new BadRequestException('Start date must be before end date');
-    }
+    
+
+    const now = new Date();
+    if (new Date(endDate) <= now)
+        throw new BadRequestException('End date must be in the future');
 
     product.discount = discount;
     product.discount_start_at = startDate;
