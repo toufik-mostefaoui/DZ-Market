@@ -19,7 +19,7 @@ import {
 import { storage } from '../cloudinary/cloudinary-storage.config';
 import { memoryStorage } from 'multer';
 import { RemiseDto } from './dto/remise.dto';
-
+import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 @Controller('product')
 export class ProductController {
@@ -27,6 +27,27 @@ export class ProductController {
 
   @Post()
   @UseInterceptors(FilesInterceptor('images', 30, { storage: memoryStorage() }))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        ...Object.keys(new CreateProductDto()).reduce((acc, key) => {
+          acc[key] = { type: 'string' }; // or number based on your DTO type
+          return acc;
+        }, {} as any),
+        images: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+          description: 'Upload one or more product images',
+        },
+      },
+      required: ['images'], // images are required
+    },
+  })
   async create(
     @Body() dto: CreateProductDto,
     @UploadedFiles() images: Express.Multer.File[] = [],
@@ -46,6 +67,27 @@ export class ProductController {
 
   @Patch(':id')
   @UseInterceptors(FilesInterceptor('images', 30, { storage: memoryStorage() }))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+  schema: {
+    type: 'object',
+    properties: {
+      ...Object.keys(new UpdateProductDto()).reduce((acc, key) => {
+        acc[key] = { type: 'string' }; // or number based on your DTO type
+        return acc;
+      }, {} as any),
+      images: {
+        type: 'array',
+        items: {
+          type: 'string',
+          format: 'binary',
+        },
+        description: 'Upload one or more product images',
+      },
+    },
+    required: ['images'], // images are required
+  },
+})
   async update(
     @Param('id') id: number,
     @Body() updateProductDto: UpdateProductDto,
@@ -60,6 +102,14 @@ export class ProductController {
   }
 
   @Post('rating/:idProduct')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        rating: { type: 'number', example: 4 },
+      },
+    },
+  })
   updateRating(
     @Body('rating') rating: number,
     @Param('idProduct') idProduct: number,
@@ -70,6 +120,14 @@ export class ProductController {
   }
 
   @Post('feedback/:idProduct/:idUser')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        comment: { type: 'string', example: 'this is good product' },
+      },
+    },
+  })
   updateFeedback(
     @Body('comment') comment: string,
     @Param('idProduct') idProduct: number,
