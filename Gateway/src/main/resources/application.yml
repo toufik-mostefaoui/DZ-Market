@@ -1,0 +1,41 @@
+server:
+  port: 7777
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8888/eureka
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
+
+spring:
+  application:
+    name: gateway-service  # Changed from just "Gateway"
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true  # Enable service discovery
+          lower-case-service-id: true  # Important for case sensitivity
+
+      routes:
+        - id: route1
+          predicates:
+              - Path=/ms-products/**
+          filters:
+              - RewritePath=/ms-products/(?<s>.*),/${s}
+          uri: lb://ms-products
+
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.netflix.eureka: DEBUG
+    com.netflix.discovery: DEBUG
+
+jwt:
+  secret: ${JWT_SECRET:defaultSecretKeyForDevelopment}
