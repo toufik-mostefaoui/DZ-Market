@@ -122,9 +122,9 @@ WSGI_APPLICATION = 'ms_auth.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER": "postgres.lwhlfwvyptvioysfjdfr",
-        "PASSWORD": "Y!/JmB5p7++hBmj",
+        "NAME": "ms-auth",
+        "USER": "postgres.rhqtnvzsuczicapifyne",
+        "PASSWORD": "#5325W8uEJaa9Md",
         "HOST": "aws-1-eu-west-1.pooler.supabase.com",
         "PORT": "5432",
         "OPTIONS": {
