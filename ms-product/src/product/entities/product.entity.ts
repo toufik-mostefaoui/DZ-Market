@@ -67,13 +67,13 @@ export class Product {
       now <= end;
 
     if (isDiscountValid) {
-      this.isValid = isDiscountValid;
+      this.isDiscountValid = isDiscountValid;
       this.final_price = this.price - (this.price * this.discount) / 100;
     } else {
-      this.isValid = isDiscountValid;
+      this.isDiscountValid = isDiscountValid;
       this.final_price = this.price;
     }
   }
-  isValid:boolean;
+  isDiscountValid:boolean;
   final_price: number; // virtual field (not stored in DB)
 }
