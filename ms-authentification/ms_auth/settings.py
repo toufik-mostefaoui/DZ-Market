@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-sa1#p9m-p^uf&k7oyti5uwxtw30v%hoa$h)j2ru1c-4-s^ar1$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework.authtoken', 
     'django.contrib.sites',
-    'auth_app',
+    # 'auth_app',
+    'auth_app.apps.AuthAppConfig',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -176,6 +177,12 @@ EMAIL_HOST_USER = "oumaimatest425@gmail.com"
 EMAIL_HOST_PASSWORD = "ftse evff ebua oqlr"
 
 
-EUREKA_SERVER = "http://localhost:8761/eureka/"
+import socket
+hostname = socket.gethostname()
+local_ip = socket.gethostbyname(hostname)
+
+EUREKA_SERVER = "http://localhost:8888/eureka/"
 SERVICE_NAME = "ms-authentification"
 SERVICE_PORT = 8000
+SERVICE_HOST = local_ip  # Use actual IP, not localhost
+SERVICE_IP = local_ip    # Same as above
