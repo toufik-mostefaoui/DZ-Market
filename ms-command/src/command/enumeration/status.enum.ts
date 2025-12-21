@@ -1,0 +1,7 @@
+export enum Status {
+  ENATTENTE = 'ENATTENTE',
+  VALIDER = 'VALIDER',
+  LIVRER = 'LIVRER',
+  EXPIDIER = 'EXPIDIER',
+  ANNULER = 'ANNULER',
+}
