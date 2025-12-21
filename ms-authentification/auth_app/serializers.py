@@ -63,3 +63,5 @@ class VendeurSerializer(serializers.ModelSerializer):
             "id", "username", "email", "tel", "adresse", "role", "bloque", "is_verified",
             "entreprise", "type_entreprise", "wilaya", "registre_commerce", "nin"
         ]
+
+

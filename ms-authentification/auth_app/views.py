@@ -55,13 +55,21 @@ class LoginView(APIView):
         ser.is_valid(raise_exception=True)
 
         user = ser.validated_data
-        tokens = RefreshToken.for_user(user)
+
+        refresh = RefreshToken.for_user(user)
+
+        # ✅ ADD CUSTOM CLAIMS
+        refresh["username"] = user.username
+        refresh["email"] = user.email
+        refresh["role"] = user.role
+        refresh["is_verified"] = user.is_verified
+        refresh["bloque"] = user.bloque
 
         return Response({
-            "access": str(tokens.access_token),
-            "refresh": str(tokens),
-            "role": user.role
+            "access": str(refresh.access_token),
+            "refresh": str(refresh)
         })
+
 
 
 User = get_user_model()
