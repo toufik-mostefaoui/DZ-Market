@@ -25,6 +25,7 @@ public class JwtUtil {
 
     public boolean isValid(String token){
         try{
+            System.out.println("Secret: '" + secret + "'");
             extractClaims(token);
             return true;
         }catch (Exception e){
