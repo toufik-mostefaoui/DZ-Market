@@ -1,6 +1,7 @@
 package com.example.gateway.Security;
 
 import com.example.gateway.Security.JwtUtil;
+import io.micrometer.core.instrument.config.validate.Validated;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
@@ -24,7 +25,8 @@ public class jwtFilter implements WebFilter {
 
     // Empty public URLs list (only protected endpoints by default)
     private static final String[] PUBLIC_URLS = {
-            "/ms-products/api-docs"
+            "/ms-products/api-docs" ,"/ms-authentification/" , "/ms-command/"
+            ,"/ms-products/"
     };
 
     @Override
@@ -47,9 +49,13 @@ public class jwtFilter implements WebFilter {
             return onError(exchange, "Missing or invalid Authorization header", HttpStatus.UNAUTHORIZED);
         }
 
-        String token = authHeader.substring(7);
+        String token = authHeader.substring(7).trim();
 
         if (!jwtUtil.isValid(token)) {
+            System.out.println("Authorization header: '" + authHeader + "'");
+            System.out.println("Token extracted: '" + token + "'");
+            System.out.println("Token valid: " + jwtUtil.isValid(token));
+
             return onError(exchange, "Invalid or expired token", HttpStatus.UNAUTHORIZED);
         }
 

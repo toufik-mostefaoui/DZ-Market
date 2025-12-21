@@ -25,10 +25,24 @@ spring:
       routes:
         - id: route1
           predicates:
-              - Path=/ms-products/**
+              - Path=/ms-authentification/**
           filters:
-              - RewritePath=/ms-products/(?<s>.*),/${s}
+              - RewritePath=/ms-authentification/(?<s>.*),/${s}
+          uri: lb://ms-authentification
+
+        - id: route2
+          predicates:
+            - Path=/ms-products/**
+          filters:
+            - RewritePath=/ms-products/(?<s>.*),/${s}
           uri: lb://ms-products
+
+        - id: route3
+          predicates:
+            - Path=/ms-command/**
+          filters:
+            - RewritePath=/ms-command/(?<s>.*),/${s}
+          uri: lb://ms-command
 
 
 logging:
