@@ -1,4 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Status } from "../enumeration/status.enum";
 
 @Entity()
 export class CommandItem {
@@ -19,4 +20,7 @@ export class CommandItem {
 
   @Column({ type: 'double precision' })
   price; // snapshot
+
+  @Column({ type: 'enum', enum: Status, default: Status.ENATTENTE })
+  status: Status;
 }
