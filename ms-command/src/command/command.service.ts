@@ -28,7 +28,6 @@ export class CommandService {
   async create(createCommandDto: CreateCommandDto) {
     const commandClient = await this.commandClientRepository.save({
       id_client: createCommandDto.id_client,
-      status: Status.ENATTENTE,
       total_price: 0, // temporary, will update later
     });
 
@@ -57,6 +56,7 @@ export class CommandService {
         quantity: prod.quantity,
         price: product.data.price,
         id_vendeur: product.data.id_vendeur,
+        status: Status.ENATTENTE,
       });
 
       const subtotal = product.data.price * prod.quantity;
@@ -92,18 +92,93 @@ export class CommandService {
     return commandClient;
   }
 
-  findAll() {
-    return this.commandClientRepository.find();
+  async findAll() {
+    const commands = await this.commandClientRepository.find();
+
+    for (const command of commands) {
+      const items = await this.commandItemRepo.find({
+        where: { id_command: command.id_command },
+      });
+      if (items.length === 0) {
+        command.status = Status.ANNULER;
+        await this.commandClientRepository.save(command);
+      }
+      const allValidated = items.every(
+        (item) => item.status === Status.VALIDER,
+      );
+
+      if (allValidated) {
+        command.status = Status.VALIDER;
+        await this.commandClientRepository.save(command);
+      } else {
+        command.status = Status.ENATTENTE;
+        await this.commandClientRepository.save(command);
+      }
+
+      (command as any).products = items;
+    }
+
+    return commands;
   }
 
-  async findOne(id: number) {
-    const command = await this.commandClientRepository.findOne({
-      where: { id_client: id },
+  async findCommandByClient(id_client: number) {
+    const commands = await this.commandClientRepository.find({
+      where: { id_client: id_client },
     });
 
-    if (!command) throw new NotFoundException('Command not found');
+    if (!commands)
+      throw new NotFoundException(
+        `Command for userID : ${id_client} not found`,
+      );
+    for (const command of commands) {
+      const items = await this.commandItemRepo.find({
+        where: { id_command: command.id_command },
+      });
+      if (items.length === 0) {
+        command.status = Status.ANNULER;
+        await this.commandClientRepository.save(command);
+      }
+      const allValidated = items.every(
+        (item) => item.status === Status.VALIDER,
+      );
 
-    return command;
+      if (allValidated) {
+        command.status = Status.VALIDER;
+        await this.commandClientRepository.save(command);
+      } else {
+        command.status = Status.ENATTENTE;
+        await this.commandClientRepository.save(command);
+      }
+
+      (command as any).products = items;
+    }
+
+    return commands;
+  }
+
+  async findCommandByVendeur(id_vendeur: number) {
+    const commands = await this.commandVendeurRepo.find({
+      where: { id_vendeur: id_vendeur },
+    });
+
+    if (!commands)
+      throw new NotFoundException(
+        `Command for vendeurID : ${id_vendeur} not found`,
+      );
+    for (const command of commands) {
+      const items = await this.commandItemRepo.find({
+        where: { id_command: command.id_command, id_vendeur: id_vendeur },
+      });
+
+      const commandClient = await this.commandClientRepository.findOne({
+        where: { id_command: command.id_command },
+      });
+
+      (command as any).products = items;
+      (command as any).id_client = commandClient?.id_client;
+    }
+
+    return commands;
   }
 
   async update(id_command: number, updateCommandDto: UpdateCommandDto) {
@@ -124,9 +199,21 @@ export class CommandService {
     commandVendeur.status = updateCommandDto.status;
     await this.commandVendeurRepo.save(commandVendeur);
 
-    commandClient.status = updateCommandDto.status;
-    await this.commandClientRepository.save(commandClient);
+    const commandItems = await this.commandItemRepo.find({
+      where: {
+        id_command: id_command,
+        id_vendeur: updateCommandDto.id_vendeur,
+      },
+    });
 
+    for (const item of commandItems) {
+      if (updateCommandDto.status === Status.ANNULER) {
+        await this.commandItemRepo.remove(item);
+        continue;
+      }
+      item.status = updateCommandDto.status;
+      await this.commandItemRepo.save(item);
+    }
     return { commandClient, commandVendeur };
   }
 
@@ -142,13 +229,23 @@ export class CommandService {
     if (!commandsVendeur || !commandClient)
       throw new NotFoundException('Command not found');
 
-    commandClient.status = Status.ANNULER;
-    await this.commandClientRepository.save(commandClient);
+    const commandItems = await this.commandItemRepo.find({
+      where: { id_command: id_command },
+    });
+
+    for (const item of commandItems) {
+      // item.status = Status.ANNULER;
+      // await this.commandItemRepo.save(item);
+      await this.commandItemRepo.remove(item);
+    }
 
     for (const cmdVendeur of commandsVendeur) {
       cmdVendeur.status = Status.ANNULER;
       await this.commandVendeurRepo.save(cmdVendeur);
     }
+
+    commandClient.status = Status.ANNULER;
+    await this.commandClientRepository.save(commandClient);
 
     return { commandClient, commandsVendeur };
   }

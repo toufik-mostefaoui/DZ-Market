@@ -27,13 +27,15 @@ export class CommandController {
     return this.commandService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.commandService.findOne(+id);
+  @Get('client/:id_client')
+  findCommandByClient(@Param('id_client') id_client: string) {
+    return this.commandService.findCommandByClient(+id_client);
   }
 
   @Get('vendeur/:id_vendeur')
-  findByVendeur(@Param('id_vendeur') id_vendeur: string) {}
+  findCommandByVendeur(@Param('id_vendeur') id_vendeur: string) {
+    return this.commandService.findCommandByVendeur(+id_vendeur);
+  }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCommandDto: UpdateCommandDto) {
@@ -47,14 +49,11 @@ export class CommandController {
       description: 'Delete Command by client',
     },
   })
-  remove(
-    @Param('id_command', ParseIntPipe) id_command: string,
-    //@Param('id_client', ParseIntPipe) id_client: string,
-  ) {
+  remove(@Param('id_command', ParseIntPipe) id_command: string) {
     return this.commandService.remove(+id_command);
   }
 
-  @Delete('/vendeur/:id_command/:id_vendeur')
+  @Delete('/vendeur/:id_vendeur/:id_command')
   @ApiBody({
     schema: {
       type: 'object',
@@ -65,7 +64,10 @@ export class CommandController {
     @Param('id_command', ParseIntPipe) id_command: string,
     @Param('id_vendeur', ParseIntPipe) id_vendeur: string,
   ) {
-    return this.commandService.anullerCommandByVendeur(+id_command, +id_vendeur);
+    return this.commandService.anullerCommandByVendeur(
+      +id_command,
+      +id_vendeur,
+    );
   }
 
   @Post('report/:id_product/:id_user/:id_command')
